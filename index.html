@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Text File Translator</title>
+</head>
+<body>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".txt" />
+    <select name="language">
+      <option value="fr">French</option>
+      <option value="es">Spanish</option>
+      <option value="de">German</option>
+    </select>
+    <button type="submit">Translate</button>
+  </form>
+
+  <div id="status"></div>
+
+  <script>
+    const socket = new WebSocket('ws://localhost:3000');
+    socket.onmessage = (event) => {
+      const status = JSON.parse(event.data);
+      document.getElementById('status').innerText = status.status;
+    };
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      const response = await fetch('/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert('Translation Complete! Download your file.');
+        window.location = data.file;
+      }
+    });
+  </script>
+</body>
+</html>
